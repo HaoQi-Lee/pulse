@@ -1,0 +1,7 @@
+go 1.22
+
+use .
+use ./plugins/slog
+use ./plugins/zap
+use ./plugins/zerolog
+use ./plugins/logrus
