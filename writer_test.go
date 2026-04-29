@@ -16,13 +16,11 @@ func TestTcpWriterWriteDoesNotBlock(t *testing.T) {
 		done: make(chan struct{}),
 	}
 
-	// channel capacity is 1, first write fills it
 	n, err := w.Write([]byte("msg1"))
 	if n != 4 || err != nil {
 		t.Fatalf("first write: n=%d err=%v", n, err)
 	}
 
-	// second write should be dropped but NOT block
 	done := make(chan struct{})
 	go func() {
 		w.Write([]byte("msg2"))
@@ -31,7 +29,6 @@ func TestTcpWriterWriteDoesNotBlock(t *testing.T) {
 
 	select {
 	case <-done:
-		// good
 	case <-time.After(time.Second):
 		t.Fatal("Write blocked when buffer full")
 	}
@@ -234,13 +231,11 @@ func TestCloseFlushesBuffer(t *testing.T) {
 		case m := <-received:
 			msgs = append(msgs, m)
 		case <-done:
-			// Close returned before we collected all messages
 		case <-timeout:
 			t.Fatalf("expected 3 messages, got %d", len(msgs))
 		}
 	}
 
-	// Close should block until all messages are drained
 	select {
 	case <-done:
 	case <-time.After(5 * time.Second):
@@ -262,10 +257,8 @@ func TestWriteDroppedLogsToStderr(t *testing.T) {
 		done: make(chan struct{}),
 	}
 
-	// fill the buffer
 	w.Write([]byte("msg1"))
 
-	// capture stderr
 	old := os.Stderr
 	r, wStderr, _ := os.Pipe()
 	os.Stderr = wStderr
@@ -306,74 +299,52 @@ func TestReconnectDialsNewConnection(t *testing.T) {
 		done: make(chan struct{}),
 	}
 
-	// create a dummy closed connection
 	dummy, _ := net.Dial("tcp", ln.Addr().String())
-	<-accepted // consume the first accept
+	<-accepted
 	dummy.Close()
 
-	// reconnect should dial to w.Cs and return a working connection
 	newConn := w.reconnect(dummy)
 	defer newConn.Close()
 
-	// verify the new connection is usable
 	n, err := newConn.Write([]byte("test"))
 	if err != nil || n != 4 {
 		t.Fatalf("write on reconnected conn: n=%d err=%v", n, err)
 	}
 }
 
-func TestFieldsValues(t *testing.T) {
-	// set global state that fields() depends on
-	m = Meta{Beat: "logback"}
-	f = Fields{Project: "test-project", Service: "golang"}
-	local, _ = time.LoadLocation("")
-	hostname, _ = os.Hostname()
-	pid = "42"
-
-	flds := fields("hello world")
-
-	if flds["message"] != "hello world" {
-		t.Errorf("message = %v, want %q", flds["message"], "hello world")
+func TestNewTcpWriter(t *testing.T) {
+	w := NewTcpWriter("127.0.0.1:0", 0)
+	if w == nil {
+		t.Fatal("NewTcpWriter returned nil")
 	}
-	if flds["host"] != hostname {
-		t.Errorf("host = %v, want %q", flds["host"], hostname)
+	if w.Cs != "127.0.0.1:0" {
+		t.Errorf("Cs = %q, want %q", w.Cs, "127.0.0.1:0")
 	}
-	if flds["thread_name"] != "42" {
-		t.Errorf("thread_name = %v, want %q", flds["thread_name"], "42")
-	}
-	if flds["logger_name"] == "" {
-		t.Error("logger_name should not be empty")
-	}
-
-	meta, ok := flds["@metadata"].(Meta)
-	if !ok || meta.Beat != "logback" {
-		t.Errorf("@metadata = %v, want Meta{Beat:%q}", flds["@metadata"], "logback")
-	}
-	fieldsVal, ok := flds["fields"].(Fields)
-	if !ok || fieldsVal.Project != "test-project" || fieldsVal.Service != "golang" {
-		t.Errorf("fields = %v, want Fields{Project:%q, Service:%q}", flds["fields"], "test-project", "golang")
-	}
-
-	ts, ok := flds["@timestamp"].(string)
-	if !ok || len(ts) == 0 {
-		t.Error("@timestamp should be a non-empty string")
+	if cap(w.ch) != 1024 {
+		t.Errorf("buffer cap = %d, want %d", cap(w.ch), 1024)
 	}
 }
 
-func TestGetCaller(t *testing.T) {
-	// getCaller(0) should return the file containing the call site
-	result := getCaller(0)
-	if result == "" {
-		t.Fatal("getCaller returned empty string")
+func TestNewTcpWriterCustomBufferSize(t *testing.T) {
+	w := NewTcpWriter("127.0.0.1:0", 2048)
+	if cap(w.ch) != 2048 {
+		t.Errorf("buffer cap = %d, want %d", cap(w.ch), 2048)
 	}
+}
 
-	// should contain exactly one slash (last two path segments)
-	count := strings.Count(result, "/")
-	if count != 1 {
-		t.Errorf("getCaller = %q, expected exactly 1 slash, got %d", result, count)
-	}
+func TestCloseWithoutWrite(t *testing.T) {
+	w := NewTcpWriter("localhost:0", 100)
 
-	if !strings.HasSuffix(result, "logger.go") {
-		t.Errorf("getCaller = %q, expected to end with logger.go", result)
+	done := make(chan struct{})
+	go func() {
+		w.Close()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		// Close returned immediately — good
+	case <-time.After(time.Second):
+		t.Fatal("Close hung when no writes were made")
 	}
 }

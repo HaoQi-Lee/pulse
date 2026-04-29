@@ -1,85 +1,153 @@
 # pulse
 
-基于 [logrus](https://github.com/sirupsen/logrus) 的结构化日志库，通过 TCP 将 JSON 格式的日志发送到 Logstash 端点。
+日志库的 **TCP 传输增强层**。Core 统一定义日志条目结构和 TCP 传输，各插件作为适配器桥接原生日志库事件到 Core。
+
+## 架构
+
+```
+pulse (core)                  # 无第三方日志库依赖
+├── plugins/slog              # slog.Handler 适配器（标准库）
+├── plugins/zap               # zapcore.Core 适配器
+├── plugins/zerolog           # zerolog.Hook 适配器
+└── plugins/logrus            # logrus.Hook 适配器
+```
+
+应用只引入需要的插件，不会拉到其他日志库的依赖。
 
 ## 特性
 
-- 结构化 JSON 日志输出，兼容 ELK 技术栈
+- JSON 输出格式跨所有插件完全一致，兼容 ELK 技术栈
 - TCP 传输，连接断开时自动重连
 - 自动附加元数据（主机名、PID、时间戳、调用位置）
 - 异步写入，不阻塞业务逻辑
-- 进程退出前自动 flush 缓冲区（信号处理 + 显式关闭）
-
-## 安装
-
-```bash
-go get git.showcai.com.cn/tech/pulse
-```
+- 通过 `go.work` 管理多模块，插件独立版本化
 
 ## 快速开始
+
+### slog
 
 ```go
 package main
 
 import (
-	"fmt"
-	"git.showcai.com.cn/tech/pulse"
+    "log/slog"
+    "git.showcai.com.cn/tech/pulse"
+    pulseslog "git.showcai.com.cn/tech/pulse/plugins/slog"
 )
 
 func main() {
-	defer pulse.Setup("my-project", "logstash.example.com:5959")()
+    handler := pulseslog.NewHandler(pulse.Options{
+        Project:  "demo",
+        Logstash: "10.141.48.10:4560",
+    })
+    defer handler.Close()
+    slog.SetDefault(slog.New(handler))
 
-	pulse.Info("服务启动")
-	pulse.Warn("磁盘空间不足")
-	pulse.Debug("调试信息")
-	pulse.Error(fmt.Errorf("连接超时"))
+    slog.Info("服务启动")
 }
 ```
 
-`Setup` 返回一个关闭函数，`defer` 确保进程正常退出前 flush 缓冲区中的剩余日志。同时内部监听 `SIGINT`/`SIGTERM` 信号，被 kill 时也会自动 flush。
+### zap
 
-## API
+```go
+package main
 
-### `Setup(name string, logstash string) func()`
+import (
+    "go.uber.org/zap"
+    "git.showcai.com.cn/tech/pulse"
+    pulsezap "git.showcai.com.cn/tech/pulse/plugins/zap"
+)
 
-初始化日志器。`name` 为项目名称，`logstash` 为 Logstash TCP 地址。返回关闭函数，应在 `main` 中 `defer` 调用以确保退出前 flush。
+func main() {
+    core := pulsezap.NewCore(pulse.Options{
+        Project:  "demo",
+        Logstash: "10.141.48.10:4560",
+    })
+    defer core.Close()
+    logger := zap.New(core)
 
-### `Info(message string)` / `Debug(message string)` / `Warn(message string)`
+    logger.Info("服务启动")
+}
+```
 
-输出对应级别的日志。
+### zerolog
 
-### `Error(err error)`
+```go
+package main
 
-输出错误级别的日志，参数为 `error` 类型。
+import (
+    "github.com/rs/zerolog/log"
+    "git.showcai.com.cn/tech/pulse"
+    pulsezerolog "git.showcai.com.cn/tech/pulse/plugins/zerolog"
+)
+
+func main() {
+    hook := pulsezerolog.NewHook(pulse.Options{
+        Project:  "demo",
+        Logstash: "10.141.48.10:4560",
+    })
+    defer hook.Close()
+    log.Logger = log.Hook(hook)
+
+    log.Info().Msg("服务启动")
+}
+```
+
+### logrus
+
+```go
+package main
+
+import (
+    "github.com/sirupsen/logrus"
+    "git.showcai.com.cn/tech/pulse"
+    pulselogrus "git.showcai.com.cn/tech/pulse/plugins/logrus"
+)
+
+func main() {
+    hook := pulselogrus.NewHook(pulse.Options{
+        Project:  "demo",
+        Logstash: "10.141.48.10:4560",
+    })
+    defer hook.Close()
+    logrus.AddHook(hook)
+
+    logrus.Info("服务启动")
+}
+```
+
+## Options
+
+```go
+type Options struct {
+    Project    string // 项目名
+    Logstash   string // Logstash TCP 地址，如 "10.141.48.10:4560"
+    Service    string // 默认 "golang"
+    Beat       string // 默认 "logback"
+    Level      string // 默认 "info"，可选 debug/info/warn/error
+    BufferSize int    // 默认 1024
+}
+```
 
 ## 日志格式
 
-每条日志以 JSON 格式通过 TCP 发送，结构如下：
+所有插件输出统一的 JSON 格式：
 
 ```json
 {
   "thread_name": "12345",
-  "host": "web-server-01",
-  "@timestamp": "2026-04-28T10:30:00.123Z",
-  "logger_name": "pkg/handler.go",
+  "host": "server-01",
+  "@timestamp": "2026-04-29T10:30:00.123Z",
+  "logger_name": "main.go:15",
   "@metadata": { "beat": "logback" },
-  "fields": { "project": "my-project", "service": "golang" },
-  "message": "服务启动"
+  "fields": { "project": "demo", "service": "golang" },
+  "message": "服务启动",
+  "level": "info"
 }
 ```
 
-## 退出时 flush
-
-`Setup` 提供两层退出保障：
-
-1. **显式关闭**：`defer pulse.Setup(...)()` — 进程正常 return 时 flush 缓冲区
-2. **信号处理**：内部监听 `SIGINT`/`SIGTERM`，收到终止信号时自动 flush 并退出
-
-## 自动重连
-
-`TcpWriter` 在写入失败时自动尝试重新建立 TCP 连接。重连期间日志暂存于 1024 容量的缓冲区，缓冲区满时丢弃新日志并输出警告到 stderr，避免阻塞业务。
+`Extra map[string]any` 字段用于承载各日志库的扩展字段（如 request_id、trace_id），`omitempty` 空时省略。
 
 ## 依赖
 
-- Go 1.14+
-- [github.com/sirupsen/logrus](https://github.com/sirupsen/logrus)
+- Go 1.22+
