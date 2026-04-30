@@ -10,7 +10,7 @@ import (
 
 func main() {
 	hook := pulsezerolog.NewHook(pulse.Options{
-		Project:  "demo",
+		Project:  "zerolog-demo",
 		Logstash: "10.141.48.10:4560",
 	})
 	defer hook.Close()

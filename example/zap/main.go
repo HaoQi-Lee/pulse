@@ -8,7 +8,7 @@ import (
 
 func main() {
 	core := pulsezap.NewCore(pulse.Options{
-		Project:  "demo",
+		Project:  "zap-demo",
 		Logstash: "10.141.48.10:4560",
 	})
 	defer core.Close()

@@ -10,7 +10,7 @@ import (
 
 func main() {
 	handler := pulseslog.NewHandler(pulse.Options{
-		Project:  "demo",
+		Project:  "slog-demo",
 		Logstash: "10.141.48.10:4560",
 	})
 	defer handler.Close()
