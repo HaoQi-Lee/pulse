@@ -3,7 +3,7 @@ package pulse
 // Options configures the pulse core.
 type Options struct {
 	Project    string // project name
-	Logstash   string // Logstash TCP address, e.g. "10.141.48.10:4560"
+	Logstash   string // Logstash TCP address, e.g. "a.b.c.d:4560"
 	Service    string // default: "golang"
 	Beat       string // default: "logback"
 	Level      string // default: "info", options: debug/info/warn/error

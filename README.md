@@ -38,7 +38,7 @@ import (
 func main() {
     handler := pulseslog.NewHandler(pulse.Options{
         Project:  "demo",
-        Logstash: "10.141.48.10:4560",
+        Logstash: "a.b.c.d:4560",
     })
     defer handler.Close()
     slog.SetDefault(slog.New(handler))
@@ -61,7 +61,7 @@ import (
 func main() {
     core := pulsezap.NewCore(pulse.Options{
         Project:  "demo",
-        Logstash: "10.141.48.10:4560",
+        Logstash: "a.b.c.d:4560",
     })
     defer core.Close()
     logger := zap.New(core)
@@ -84,7 +84,7 @@ import (
 func main() {
     hook := pulsezerolog.NewHook(pulse.Options{
         Project:  "demo",
-        Logstash: "10.141.48.10:4560",
+        Logstash: "a.b.c.d:4560",
     })
     defer hook.Close()
     log.Logger = log.Hook(hook)
@@ -107,7 +107,7 @@ import (
 func main() {
     hook := pulselogrus.NewHook(pulse.Options{
         Project:  "demo",
-        Logstash: "10.141.48.10:4560",
+        Logstash: "a.b.c.d:4560",
     })
     defer hook.Close()
     logrus.AddHook(hook)
@@ -121,7 +121,7 @@ func main() {
 ```go
 type Options struct {
     Project    string // 项目名
-    Logstash   string // Logstash TCP 地址，如 "10.141.48.10:4560"
+    Logstash   string // Logstash TCP 地址，如 "a.b.c.d:4560"
     Service    string // 默认 "golang"
     Beat       string // 默认 "logback"
     Level      string // 默认 "info"，可选 debug/info/warn/error

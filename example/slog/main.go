@@ -11,7 +11,7 @@ import (
 func main() {
 	handler := pulseslog.NewHandler(pulse.Options{
 		Project:  "slog-demo",
-		Logstash: "10.141.48.10:4560",
+		Logstash: "a.b.c.d:4560",
 	})
 	defer handler.Close()
 	slog.SetDefault(slog.New(handler))
