@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 
-	"git.showcai.com.cn/tech/pulse"
-	pulselogrus "git.showcai.com.cn/tech/pulse/plugins/logrus"
+	"github.com/leehoawki/pulse"
+	pulselogrus "github.com/leehoawki/pulse/plugins/logrus"
 	"github.com/sirupsen/logrus"
 )
 

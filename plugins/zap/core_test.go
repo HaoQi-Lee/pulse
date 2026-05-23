@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"git.showcai.com.cn/tech/pulse"
+	"github.com/leehoawki/pulse"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

@@ -1,3 +1,3 @@
-module git.showcai.com.cn/tech/pulse
+module github.com/leehoawki/pulse
 
 go 1.22

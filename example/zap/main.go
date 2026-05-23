@@ -1,8 +1,8 @@
 package main
 
 import (
-	"git.showcai.com.cn/tech/pulse"
-	pulsezap "git.showcai.com.cn/tech/pulse/plugins/zap"
+	"github.com/leehoawki/pulse"
+	pulsezap "github.com/leehoawki/pulse/plugins/zap"
 	"go.uber.org/zap"
 )
 

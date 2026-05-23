@@ -3,7 +3,7 @@ package pulselogrus
 import (
 	"runtime"
 
-	"git.showcai.com.cn/tech/pulse"
+	"github.com/leehoawki/pulse"
 	"github.com/sirupsen/logrus"
 )
 

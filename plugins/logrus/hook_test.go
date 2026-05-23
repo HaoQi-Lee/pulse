@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"git.showcai.com.cn/tech/pulse"
+	"github.com/leehoawki/pulse"
 	"github.com/sirupsen/logrus"
 )
 

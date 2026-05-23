@@ -1,9 +1,9 @@
-module git.showcai.com.cn/tech/pulse/plugins/zerolog
+module github.com/leehoawki/pulse/plugins/zerolog
 
 go 1.22
 
 require (
-	git.showcai.com.cn/tech/pulse v0.0.0
+	github.com/leehoawki/pulse v0.0.0
 	github.com/rs/zerolog v1.33.0
 )
 
@@ -13,4 +13,4 @@ require (
 	golang.org/x/sys v0.12.0 // indirect
 )
 
-replace git.showcai.com.cn/tech/pulse => ../../
+replace github.com/leehoawki/pulse => ../../

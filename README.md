@@ -31,8 +31,8 @@ package main
 
 import (
     "log/slog"
-    "git.showcai.com.cn/tech/pulse"
-    pulseslog "git.showcai.com.cn/tech/pulse/plugins/slog"
+    "github.com/leehoawki/pulse"
+    pulseslog "github.com/leehoawki/pulse/plugins/slog"
 )
 
 func main() {
@@ -54,8 +54,8 @@ package main
 
 import (
     "go.uber.org/zap"
-    "git.showcai.com.cn/tech/pulse"
-    pulsezap "git.showcai.com.cn/tech/pulse/plugins/zap"
+    "github.com/leehoawki/pulse"
+    pulsezap "github.com/leehoawki/pulse/plugins/zap"
 )
 
 func main() {
@@ -77,8 +77,8 @@ package main
 
 import (
     "github.com/rs/zerolog/log"
-    "git.showcai.com.cn/tech/pulse"
-    pulsezerolog "git.showcai.com.cn/tech/pulse/plugins/zerolog"
+    "github.com/leehoawki/pulse"
+    pulsezerolog "github.com/leehoawki/pulse/plugins/zerolog"
 )
 
 func main() {
@@ -100,8 +100,8 @@ package main
 
 import (
     "github.com/sirupsen/logrus"
-    "git.showcai.com.cn/tech/pulse"
-    pulselogrus "git.showcai.com.cn/tech/pulse/plugins/logrus"
+    "github.com/leehoawki/pulse"
+    pulselogrus "github.com/leehoawki/pulse/plugins/logrus"
 )
 
 func main() {
