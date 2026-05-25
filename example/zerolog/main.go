@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 
-	"github.com/leehoawki/pulse"
-	pulsezerolog "github.com/leehoawki/pulse/plugins/zerolog"
+	"github.com/HaoQi-Lee/pulse"
+	pulsezerolog "github.com/HaoQi-Lee/pulse/plugins/zerolog"
 	"github.com/rs/zerolog/log"
 )
 

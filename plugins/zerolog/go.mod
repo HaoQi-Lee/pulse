@@ -1,9 +1,9 @@
-module github.com/leehoawki/pulse/plugins/zerolog
+module github.com/HaoQi-Lee/pulse/plugins/zerolog
 
 go 1.22
 
 require (
-	github.com/leehoawki/pulse v0.0.0
+	github.com/HaoQi-Lee/pulse v0.0.0
 	github.com/rs/zerolog v1.33.0
 )
 
@@ -13,4 +13,4 @@ require (
 	golang.org/x/sys v0.12.0 // indirect
 )
 
-replace github.com/leehoawki/pulse => ../../
+replace github.com/HaoQi-Lee/pulse => ../../

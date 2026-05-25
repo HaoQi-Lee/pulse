@@ -1,3 +1,3 @@
-module github.com/leehoawki/pulse
+module github.com/HaoQi-Lee/pulse
 
 go 1.22

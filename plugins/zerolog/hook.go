@@ -1,7 +1,7 @@
 package pulsezerolog
 
 import (
-	"github.com/leehoawki/pulse"
+	"github.com/HaoQi-Lee/pulse"
 	"github.com/rs/zerolog"
 )
 

@@ -1,7 +1,7 @@
-module github.com/leehoawki/pulse/plugins/slog
+module github.com/HaoQi-Lee/pulse/plugins/slog
 
 go 1.22
 
-require github.com/leehoawki/pulse v0.0.0
+require github.com/HaoQi-Lee/pulse v0.0.0
 
-replace github.com/leehoawki/pulse => ../../
+replace github.com/HaoQi-Lee/pulse => ../../

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/leehoawki/pulse"
-	pulseslog "github.com/leehoawki/pulse/plugins/slog"
+	"github.com/HaoQi-Lee/pulse"
+	pulseslog "github.com/HaoQi-Lee/pulse/plugins/slog"
 )
 
 func main() {

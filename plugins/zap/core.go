@@ -3,7 +3,7 @@ package pulsezap
 import (
 	"fmt"
 
-	"github.com/leehoawki/pulse"
+	"github.com/HaoQi-Lee/pulse"
 	"go.uber.org/zap/zapcore"
 )
 

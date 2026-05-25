@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"runtime"
 
-	"github.com/leehoawki/pulse"
+	"github.com/HaoQi-Lee/pulse"
 )
 
 // PulseHandler implements slog.Handler and sends log entries via pulse TCP transport.

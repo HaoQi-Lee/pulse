@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leehoawki/pulse"
+	"github.com/HaoQi-Lee/pulse"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
